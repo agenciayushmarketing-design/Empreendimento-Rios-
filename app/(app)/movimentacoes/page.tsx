@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { SelectNativo } from "@/components/ui/select-nativo";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { exigirPermissao, pode } from "@/lib/services/acesso";
+import { urlsAssinadas } from "@/lib/services/comprovantes";
 import { listarMovimentacoes, POR_PAGINA, type MovimentacaoLinha } from "@/lib/services/movimentacoes";
 import { createClient } from "@/lib/supabase/server";
 import { lerUnidadeAtual, unidadeIdOuNull } from "@/lib/unidade-atual";
@@ -58,6 +59,9 @@ export default async function MovimentacoesPage({ searchParams }: { searchParams
     pagina,
   });
 
+  const urlsComprovante = await urlsAssinadas(supabase, linhas.map((l) => l.attachment_url ?? "").filter(Boolean));
+  const urlExportar = montarUrl(searchParams, {}).replace("/movimentacoes", "/movimentacoes/exportar");
+
   const nomeUnidade = new Map(ctx.unidades.map((u) => [u.id, u.nome]));
   const podeCriar = pode(ctx, "cash_flow", "create");
   const podeEditar = pode(ctx, "cash_flow", "edit");
@@ -75,11 +79,18 @@ export default async function MovimentacoesPage({ searchParams }: { searchParams
             {unidadeId ? nomeUnidade.get(unidadeId) : "Todas as Unidades"} · {formatarMes(mes)}
           </p>
         </div>
-        {podeCriar ? (
-          <Button asChild>
-            <Link href="/movimentacoes/nova">Nova movimentação</Link>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline">
+            <a href={urlExportar} download>
+              Exportar CSV
+            </a>
           </Button>
-        ) : null}
+          {podeCriar ? (
+            <Button asChild>
+              <Link href="/movimentacoes/nova">Nova movimentação</Link>
+            </Button>
+          ) : null}
+        </div>
       </div>
 
       {searchParams.ok && MENSAGENS_OK[searchParams.ok] ? (
@@ -203,6 +214,16 @@ export default async function MovimentacoesPage({ searchParams }: { searchParams
                         {l.reconciled_at ? <Badge variant="outline">Conciliada</Badge> : null}
                         {l.closed_at ? <Badge variant="outline">Período fechado</Badge> : null}
                         {l.client?.name ? <span className="text-xs text-muted-foreground">{l.client.name}</span> : null}
+                        {l.attachment_url && urlsComprovante.get(l.attachment_url) ? (
+                          <a
+                            href={urlsComprovante.get(l.attachment_url)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs underline underline-offset-4"
+                          >
+                            Comprovante
+                          </a>
+                        ) : null}
                       </div>
                     </TableCell>
                     {!unidadeId ? (

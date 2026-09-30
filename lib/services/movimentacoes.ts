@@ -21,7 +21,7 @@ export type FiltrosMovimentacoes = {
 // String unica (nao concatenada) para o supabase-js inferir os tipos. bank_accounts tem duas FKs a partir
 // de transactions (bank_account_id e transfer_counterpart_account_id); por isso o nome da FK no embed.
 const COLUNAS_LISTA =
-  "id, business_unit_id, date, description, type, amount, status, is_transfer, is_adjustment, closed_at, reconciled_at, category:categories(name), client:clients(name), bank_account:bank_accounts!transactions_bank_account_id_fkey(name)";
+  "id, business_unit_id, date, description, type, amount, status, is_transfer, is_adjustment, closed_at, reconciled_at, attachment_url, category:categories(name), client:clients(name), bank_account:bank_accounts!transactions_bank_account_id_fkey(name)";
 
 export async function listarMovimentacoes(supabase: SupabaseServerClient, f: FiltrosMovimentacoes) {
   const { inicio, fim } = limitesDoMesISO(f.mes);
@@ -84,7 +84,7 @@ export async function obterMovimentacao(supabase: SupabaseServerClient, id: stri
   const { data, error } = await supabase
     .from("transactions")
     .select(
-      "id, business_unit_id, date, description, type, amount, status, category_id, client_id, bank_account_id, is_transfer, is_adjustment, closed_at, reconciled_at"
+      "id, business_unit_id, date, description, type, amount, status, category_id, client_id, bank_account_id, is_transfer, is_adjustment, closed_at, reconciled_at, attachment_url"
     )
     .eq("id", id)
     .maybeSingle();
@@ -122,3 +122,26 @@ export async function opcoesDoFormulario(supabase: SupabaseServerClient) {
 }
 
 export type OpcoesFormulario = Awaited<ReturnType<typeof opcoesDoFormulario>>;
+
+// Todas as linhas do filtro (sem paginacao), para exportar. Limite de seguranca de 5000.
+export async function exportarMovimentacoes(
+  supabase: SupabaseServerClient,
+  f: Omit<FiltrosMovimentacoes, "pagina">
+) {
+  const { inicio, fim } = limitesDoMesISO(f.mes);
+  let consulta = supabase
+    .from("transactions")
+    .select(COLUNAS_LISTA)
+    .gte("date", inicio)
+    .lte("date", fim)
+    .order("date", { ascending: true })
+    .order("created_at", { ascending: true })
+    .limit(5000);
+  if (f.unidadeId) consulta = consulta.eq("business_unit_id", f.unidadeId);
+  if (f.tipo) consulta = consulta.eq("type", f.tipo);
+  if (f.status === "paid" || f.status === "pending") consulta = consulta.eq("status", f.status);
+  if (f.busca) consulta = consulta.ilike("description", `%${f.busca.replace(/[%_]/g, "")}%`);
+  const { data, error } = await consulta;
+  if (error) throw new Error(`Falha ao exportar: ${error.message}`);
+  return data ?? [];
+}

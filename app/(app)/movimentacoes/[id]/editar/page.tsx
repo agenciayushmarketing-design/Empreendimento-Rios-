@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { FormularioMovimentacao } from "@/components/movimentacoes/formulario";
 import { exigirPermissao } from "@/lib/services/acesso";
+import { urlsAssinadas } from "@/lib/services/comprovantes";
 import { obterMovimentacao, opcoesDoFormulario } from "@/lib/services/movimentacoes";
 import { createClient } from "@/lib/supabase/server";
 import { valorParaCampo } from "@/lib/utils/formatacao";
@@ -18,6 +19,11 @@ export default async function EditarMovimentacaoPage({ params }: { params: { id:
   else if (mov.closed_at) bloqueada = "Esta movimentação está em período fechado. Reabra o período antes de alterar.";
 
   const action = atualizarMovimentacao.bind(null, mov.id);
+  const urls = await urlsAssinadas(supabase, mov.attachment_url ? [mov.attachment_url] : []);
+  const comprovanteAtual =
+    mov.attachment_url && urls.get(mov.attachment_url)
+      ? { url: urls.get(mov.attachment_url)!, nome: mov.attachment_url.split("/").pop()?.replace(/^[0-9a-f-]{36}-\d+-/, "") ?? "arquivo" }
+      : null;
 
   return (
     <div className="space-y-6">
@@ -31,6 +37,7 @@ export default async function EditarMovimentacaoPage({ params }: { params: { id:
         action={action}
         textoBotao="Salvar alterações"
         bloqueada={bloqueada}
+        comprovanteAtual={comprovanteAtual}
         valores={{
           business_unit_id: mov.business_unit_id,
           date: mov.date,

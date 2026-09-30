@@ -32,6 +32,7 @@ type Props = {
   action: (prev: EstadoFormulario, fd: FormData) => Promise<EstadoFormulario>;
   textoBotao: string;
   bloqueada?: string; // motivo para o formulario estar somente leitura
+  comprovanteAtual?: { url: string; nome: string } | null;
 };
 
 function BotaoSalvar({ texto }: { texto: string }) {
@@ -43,7 +44,7 @@ function BotaoSalvar({ texto }: { texto: string }) {
   );
 }
 
-export function FormularioMovimentacao({ unidades, opcoes, valores, action, textoBotao, bloqueada }: Props) {
+export function FormularioMovimentacao({ unidades, opcoes, valores, action, textoBotao, bloqueada, comprovanteAtual }: Props) {
   const [estado, formAction] = useFormState(action, {});
   const [unidade, setUnidade] = useState(valores.business_unit_id);
   const [tipo, setTipo] = useState<"income" | "expense">(valores.type);
@@ -152,6 +153,21 @@ export function FormularioMovimentacao({ unidades, opcoes, valores, action, text
               ))}
             </SelectNativo>
           </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="comprovante">Comprovante (PDF ou foto, até 5 MB)</Label>
+          <Input id="comprovante" name="comprovante" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" className="h-auto py-2" />
+          {comprovanteAtual ? (
+            <div className="flex flex-wrap items-center gap-3 text-sm">
+              <a href={comprovanteAtual.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4">
+                Ver comprovante atual ({comprovanteAtual.nome})
+              </a>
+              <label className="flex items-center gap-2 text-muted-foreground">
+                <input type="checkbox" name="remover_comprovante" className="h-4 w-4" />
+                Remover
+              </label>
+            </div>
+          ) : null}
         </div>
       </fieldset>
 

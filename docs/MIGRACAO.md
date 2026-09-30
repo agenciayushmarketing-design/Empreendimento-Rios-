@@ -36,7 +36,7 @@
 
 1. **Fase 0 – organizar a casa** (este PR): baseline do banco versionado, tipos gerados, Drizzle removido, docs legados arquivados, fluxo por PR.
 2. **Fase 1 – base do app** (PR 2): login/logout, troca de senha obrigatória (`must_change_password`), layout com menu lateral e seletor de unidade persistido em cookie, contexto de acesso (`lib/services/acesso.ts`) espelhando `is_admin()`/`has_permission()`/`can_access_unit()`, uma rota por módulo com guarda de permissão, dashboard com resumo real do mês.
-3. **Fase 2+ – módulos por prioridade:** Movimentações (PR 4: listagem por mês com filtros e totais, criar/editar/excluir, marcar pago/pendente; transferências e ajustes aparecem com selo e não são editados aqui), Categorias, Clientes e Contas Bancárias (PR 5), Contas a Pagar e a Receber (PR 6: baixa pelas funções `mark_*_paid` com conta bancária, estorno, recorrência mensal de contas a pagar). Depois: empréstimos, reservas, contratos, funcionários, equipe, e por último o bloco haras.
+3. **Fase 2+ – módulos por prioridade:** Movimentações (PR 4: listagem por mês com filtros e totais, criar/editar/excluir, marcar pago/pendente; transferências e ajustes aparecem com selo e não são editados aqui), Categorias, Clientes e Contas Bancárias (PR 5), Contas a Pagar e a Receber (PR 6: baixa pelas funções `mark_*_paid` com conta bancária, estorno, recorrência mensal de contas a pagar). Melhorias (PR 7): dashboard com gráfico por unidade, tendência de 6 meses e próximos vencimentos; exportação CSV das movimentações; comprovante (PDF/foto) anexado à movimentação, no bucket privado `attachments`. Depois: Equipe (precisa de `SUPABASE_SECRET_KEY` no servidor), empréstimos, reservas, contratos, funcionários, e por último o bloco haras.
 4. **Pré go-live:** Supabase de produção, variáveis separadas na Vercel, usuários reais, backup.
 
 ## Roteiro de go-live (cliente começar a usar)
@@ -49,7 +49,7 @@ Fica no painel (não dá para fazer por API com as permissões atuais):
 2. **Supabase → Authentication → Sign In / Providers → Email:** desligar *Allow new users to sign up*. Usuários só pelo admin.
 3. **Supabase → Authentication → URL Configuration:** *Site URL* = `https://empreendimento-rios.vercel.app`; em *Redirect URLs* adicionar `https://empreendimento-rios.vercel.app/auth/callback` e `http://localhost:3000/auth/callback`. Sem isso o link de recuperação de senha não volta para o app.
 4. **Supabase → Authentication → Emails (SMTP):** o remetente padrão do Supabase limita a poucos e-mails por hora. Para produção, configurar um SMTP próprio (Resend, Brevo ou o do domínio).
-5. **Supabase → SQL Editor:** rodar, nesta ordem, `supabase/migrations/20260930120000_hardening_advisor.sql` e `20260930120100_rls_auth_uid_select.sql`.
+5. **Supabase → SQL Editor:** rodar, nesta ordem, `supabase/migrations/20260930120000_hardening_advisor.sql`, `20260930120100_rls_auth_uid_select.sql` e `20260930130000_storage_attachments.sql` (sem a última, o anexo de comprovante nas movimentações falha com erro de permissão).
 6. **Backup:** no plano Free não há backup diário. Avaliar o plano Pro antes de entrar dado real.
 7. **Vercel → Environment Variables:** opcional, `NEXT_PUBLIC_SITE_URL=https://empreendimento-rios.vercel.app` (o app usa o header `origin` quando ausente).
 
