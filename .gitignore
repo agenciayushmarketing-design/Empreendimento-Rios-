@@ -16,3 +16,6 @@ next-env.d.ts
 
 # Configuracao local do Claude Code (so na minha maquina)
 .claude/settings.local.json
+
+# Cache do TypeScript
+tsconfig.tsbuildinfo

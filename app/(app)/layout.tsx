@@ -1,10 +1,7 @@
 import { redirect } from "next/navigation";
-import { eq } from "drizzle-orm";
 
 import { Header } from "@/components/header";
-import { db } from "@/lib/db";
-import { perfis } from "@/lib/db/schema";
-import { listarUnidadesAtivas } from "@/lib/services/unidades";
+import { listarUnidadesDoUsuario } from "@/lib/services/unidades";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AppLayout({
@@ -21,18 +18,19 @@ export default async function AppLayout({
   // para que nenhuma rota autenticada carregue sem usuario.
   if (!user) redirect("/login");
 
-  const [perfil] = await db
-    .select({ empresaId: perfis.empresaId, nome: perfis.nome })
-    .from(perfis)
-    .where(eq(perfis.id, user.id));
+  // O trigger handle_new_user() cria o profile no primeiro login; o primeiro usuario vira admin.
+  const { data: perfil } = await supabase
+    .from("profiles")
+    .select("id, full_name, is_active")
+    .eq("id", user.id)
+    .maybeSingle();
 
-  if (!perfil) {
-    // Usuario logado no Auth mas sem perfil ligado a uma empresa -> desloga.
+  if (!perfil || !perfil.is_active) {
     await supabase.auth.signOut();
-    redirect("/login?erro=" + encodeURIComponent("Usuario sem perfil. Contate o admin."));
+    redirect("/login?erro=" + encodeURIComponent("Usuario sem perfil ativo. Contate o admin."));
   }
 
-  const unidades = await listarUnidadesAtivas(perfil.empresaId);
+  const unidades = await listarUnidadesDoUsuario(supabase, user.id);
 
   return (
     <div className="min-h-screen bg-background">

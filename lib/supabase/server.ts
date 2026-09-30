@@ -1,14 +1,16 @@
 // Cliente Supabase para uso em Server Components, Server Actions e Route Handlers.
-// Le e grava os cookies de sessao via next/headers.
+// Le e grava os cookies de sessao via next/headers. Todas as consultas passam pela RLS
+// do banco - o cliente carrega a sessao do usuario, nunca a chave secreta.
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { Database } from "./database.types";
 
 type CookieToSet = { name: string; value: string; options: CookieOptions };
 
 export function createClient() {
   const cookieStore = cookies();
 
-  return createServerClient(
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
@@ -30,3 +32,5 @@ export function createClient() {
     }
   );
 }
+
+export type SupabaseServerClient = ReturnType<typeof createClient>;
