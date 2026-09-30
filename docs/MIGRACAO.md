@@ -39,11 +39,23 @@
 3. **Fase 2+ – módulos por prioridade:** Movimentações (PR 4: listagem por mês com filtros e totais, criar/editar/excluir, marcar pago/pendente; transferências e ajustes aparecem com selo e não são editados aqui), depois Contas a Pagar/Receber, empréstimos, reservas, contas bancárias, e por último o bloco haras.
 4. **Pré go-live:** Supabase de produção, variáveis separadas na Vercel, usuários reais, backup.
 
+## Roteiro de go-live (cliente começar a usar)
+
+Feito no código (PR 5): recuperação de senha (`/esqueci-senha` + `/auth/callback`), cadastros de Categorias, Clientes e Contas Bancárias, migrations de hardening do advisor.
+
+Fica no painel (não dá para fazer por API com as permissões atuais):
+
+1. **Vercel → Settings → Deployment Protection:** desligar *Vercel Authentication*. Sem isso a cliente não abre o site.
+2. **Supabase → Authentication → Sign In / Providers → Email:** desligar *Allow new users to sign up*. Usuários só pelo admin.
+3. **Supabase → Authentication → URL Configuration:** *Site URL* = `https://empreendimento-rios.vercel.app`; em *Redirect URLs* adicionar `https://empreendimento-rios.vercel.app/auth/callback` e `http://localhost:3000/auth/callback`. Sem isso o link de recuperação de senha não volta para o app.
+4. **Supabase → Authentication → Emails (SMTP):** o remetente padrão do Supabase limita a poucos e-mails por hora. Para produção, configurar um SMTP próprio (Resend, Brevo ou o do domínio).
+5. **Supabase → SQL Editor:** rodar, nesta ordem, `supabase/migrations/20260930120000_hardening_advisor.sql` e `20260930120100_rls_auth_uid_select.sql`.
+6. **Backup:** no plano Free não há backup diário. Avaliar o plano Pro antes de entrar dado real.
+7. **Vercel → Environment Variables:** opcional, `NEXT_PUBLIC_SITE_URL=https://empreendimento-rios.vercel.app` (o app usa o header `origin` quando ausente).
+
 ## Pendências conhecidas
 
-- Job `mark-overdue-daily` (03:00) duplicado com `rios_mark_overdue` (06:00) no `rios-homolog`. O baseline já traz só um; falta remover o duplicado no homolog: `select cron.unschedule('mark-overdue-daily');`
-- Advisor de segurança do Supabase: extensão `pg_net` no schema `public` e funções SECURITY DEFINER executáveis por `anon`. O baseline já cria `pg_net` em `extensions`; a revogação de execute para `anon` entra numa migration própria.
+- Advisor do Supabase: resolvido em `20260930120000_hardening_advisor.sql` (pg_net, revoke de anon, índices duplicados e FKs sem índice) e `20260930120100_rls_auth_uid_select.sql` (211 policies com `(select auth.uid())`). Falta aplicar no homolog.
 - Buckets `animal-photos`, `avatars`, `client-docs`, `haras-purchase-contracts` e `sale-contracts` têm policies mas não existiam no homolog. O baseline os cria (privados).
 - As variáveis de ambiente na Vercel foram criadas em maio, antes do `rios-homolog` existir, e apontam para outro banco. Trocar no painel da Vercel (são do tipo *sensitive*, a API não deixa editar por fora): `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para os valores do homolog; `DATABASE_URL`, `DIRECT_URL` e `SUPABASE_SECRET_KEY` podem ser removidas (não são mais usadas).
-- Nenhum usuário existe no Auth do homolog. Criar o primeiro em Authentication → Users no painel; ele vira admin pelo trigger. Marcar `must_change_password` no profile se a senha for provisória.
 - Módulo **Equipe e Acessos** (`team`) precisa criar usuários, o que exige a chave secreta no servidor (`auth.admin.createUser`). Entra numa fase própria, com `SUPABASE_SECRET_KEY` só na Vercel.

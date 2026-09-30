@@ -20,7 +20,7 @@ export default async function TrocarSenhaPage({ searchParams }: Props) {
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Defina uma nova senha</h1>
           <p className="text-sm text-muted-foreground">
-            Sua senha atual é provisória. Escolha uma nova para continuar.
+            Escolha uma senha com pelo menos 8 caracteres para continuar.
           </p>
         </div>
 

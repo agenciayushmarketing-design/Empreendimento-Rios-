@@ -35,9 +35,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isLoginRoute = request.nextUrl.pathname.startsWith("/login");
+  const caminho = request.nextUrl.pathname;
+  const isLoginRoute = caminho.startsWith("/login");
+  // Rotas que funcionam sem sessao: login, recuperacao de senha e o retorno dos links de e-mail.
+  const rotaPublica = isLoginRoute || caminho.startsWith("/esqueci-senha") || caminho.startsWith("/auth/");
 
-  if (!user && !isLoginRoute) {
+  if (!user && !rotaPublica) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

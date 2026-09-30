@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -50,6 +52,12 @@ export default function LoginPage({ searchParams }: Props) {
         <Button type="submit" className="w-full">
           Entrar
         </Button>
+
+        <p className="text-center text-sm">
+          <Link href="/esqueci-senha" className="text-muted-foreground underline-offset-4 hover:underline">
+            Esqueci minha senha
+          </Link>
+        </p>
       </form>
     </main>
   );
