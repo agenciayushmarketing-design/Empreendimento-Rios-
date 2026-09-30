@@ -55,7 +55,7 @@ export function FormularioCliente({ unidades, valores, action, textoBotao }: Pro
           <Input id="phone" name="phone" inputMode="tel" defaultValue={valores.phone} placeholder="(00) 00000-0000" />
         </div>
       </div>
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
       <Botao texto={textoBotao} />
     </form>
   );

@@ -25,7 +25,7 @@ export function FormularioSenha({ action }: { action: (prev: EstadoFormulario, f
         <Input id="password" name="password" type="text" autoComplete="off" minLength={8} required />
       </div>
       <Botao />
-      {estado.erro ? <p className="w-full text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="w-full text-sm text-destructive">{estado?.erro}</p> : null}
     </form>
   );
 }

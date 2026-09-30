@@ -158,7 +158,7 @@ export function FormularioContrato({ unidades, contas, valores, action, textoBot
         </div>
       </div>
 
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
 
       <div className="flex items-center gap-3">
         <Botao texto={textoBotao} />

@@ -79,7 +79,7 @@ export function FormularioQuitacao({
       <p className="text-xs text-muted-foreground">
         A quitação registra a saída na conta escolhida, cancela as parcelas ainda pendentes e fecha o contrato. Não dá para desfazer pela tela.
       </p>
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
       <div className="flex items-center gap-3">
         <Botao texto="Confirmar quitação" />
         <Button asChild variant="ghost">
@@ -130,7 +130,7 @@ export function FormularioRotativo({
         </div>
       </div>
       <p className="text-xs text-muted-foreground">O lançamento entra em Contas a Pagar ligado a este contrato.</p>
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
       <div className="flex items-center gap-3">
         <Botao texto="Lançar" />
         <Button asChild variant="ghost">

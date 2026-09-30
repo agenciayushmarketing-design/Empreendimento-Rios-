@@ -163,7 +163,7 @@ export function FormularioConta({ cfg, unidades, opcoes, valores, action, textoB
         ) : null}
       </fieldset>
 
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
 
       <div className="flex items-center gap-3">
         {!desabilitado ? <Botao texto={textoBotao} /> : null}

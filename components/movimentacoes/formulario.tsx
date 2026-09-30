@@ -171,7 +171,7 @@ export function FormularioMovimentacao({ unidades, opcoes, valores, action, text
         </div>
       </fieldset>
 
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
 
       <div className="flex items-center gap-3">
         {!desabilitado ? <BotaoSalvar texto={textoBotao} /> : null}

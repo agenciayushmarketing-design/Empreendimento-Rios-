@@ -11,6 +11,7 @@ import {
   Landmark,
   LayoutDashboard,
   PackagePlus,
+  PawPrint,
   ShieldCheck,
   ShoppingCart,
   Tags,
@@ -33,6 +34,7 @@ const ICONES: Record<string, LucideIcon> = {
   vendas: ShoppingCart,
   compras: PackagePlus,
   equipe: ShieldCheck,
+  haras: PawPrint,
 };
 
 export function NavIcone({ nome, className }: { nome: string; className?: string }) {

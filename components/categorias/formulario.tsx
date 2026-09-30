@@ -61,7 +61,7 @@ export function FormularioCategoria({ unidades, valores, action, textoBotao, som
       <div className="flex items-center gap-3">
         <Botao texto={textoBotao} />
       </div>
-      {estado.erro ? <p className="text-sm text-destructive sm:col-span-4">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive sm:col-span-4">{estado?.erro}</p> : null}
     </form>
   );
 }

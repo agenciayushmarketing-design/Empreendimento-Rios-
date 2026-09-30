@@ -109,7 +109,7 @@ export function FormularioReserva({ unidades, clientes, valores, action, textoBo
         reservas pendentes ou confirmadas na mesma unidade com datas que se cruzam.
       </p>
 
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
 
       <div className="flex items-center gap-3">
         <Botao texto={textoBotao} />

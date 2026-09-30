@@ -28,6 +28,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     rotulo: m.rotulo,
     icone: m.icone,
   }));
+  // O bloco haras nao e um app_module: entra para quem enxerga a unidade do tipo haras.
+  if (ctx.unidades.some((u) => u.tipo === "haras")) {
+    const pos = itensNav.findIndex((i) => i.rota === "/vendas");
+    itensNav.splice(pos === -1 ? itensNav.length : pos, 0, { rota: "/haras", rotulo: "Haras", icone: "haras" });
+  }
 
   return (
     <div className="flex min-h-screen bg-background">

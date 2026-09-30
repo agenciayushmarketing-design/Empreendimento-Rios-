@@ -124,7 +124,7 @@ export function FormularioEmprestimo({ unidades, clientes, unidadeInicial, hoje,
         )}
       </div>
 
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
 
       <div className="flex items-center gap-3">
         <Botao />

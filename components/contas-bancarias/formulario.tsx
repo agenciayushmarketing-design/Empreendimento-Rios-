@@ -111,7 +111,7 @@ export function FormularioContaBancaria({ unidades, valores, action, textoBotao,
         <Input id="notes" name="notes" defaultValue={valores.notes} maxLength={200} />
       </div>
 
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
 
       <div className="flex items-center gap-3">
         <Botao texto={textoBotao} />

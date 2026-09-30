@@ -39,9 +39,14 @@ export default async function EquipePage({ searchParams }: { searchParams: Busca
           <h1 className="text-2xl font-semibold tracking-tight">Equipe e Acessos</h1>
           <p className="text-sm text-muted-foreground">Quem entra no sistema e o que cada pessoa vê.</p>
         </div>
-        <Button asChild disabled={!chaveOk}>
-          <Link href="/equipe/nova">Novo usuário</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline">
+            <Link href="/equipe/unidades">Unidades de negócio</Link>
+          </Button>
+          <Button asChild disabled={!chaveOk}>
+            <Link href="/equipe/nova">Novo usuário</Link>
+          </Button>
+        </div>
       </div>
 
       <Mensagens ok={searchParams.ok} erro={searchParams.erro} textosOk={TEXTOS_OK} />

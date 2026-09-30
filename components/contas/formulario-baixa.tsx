@@ -63,7 +63,7 @@ export function FormularioBaixa({ cfg, categorias, contas, valores, action }: Pr
       <p className="text-xs text-muted-foreground">
         A baixa gera uma movimentação de caixa com esse valor. Para desfazer, use "Estornar" na lista.
       </p>
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
       <div className="flex items-center gap-3">
         <Botao texto={`Confirmar ${cfg.verboBaixa.toLowerCase()}`} />
         <Button asChild variant="ghost">

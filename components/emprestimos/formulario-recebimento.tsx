@@ -59,7 +59,7 @@ export function FormularioRecebimento({ loanId, categorias, contas, hoje, action
         </div>
       </div>
       <p className="text-xs text-muted-foreground">O recebimento gera uma movimentação de entrada com o valor da parcela.</p>
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
       <div className="flex items-center gap-3">
         <Botao />
         <Button asChild variant="ghost">

@@ -103,7 +103,7 @@ export function FormularioFolha({ unidadeId, periodo, vencimentoPadrao, previa, 
       <p className="text-xs text-muted-foreground">
         Cada funcionário vira uma conta a pagar &quot;Folha MM/AAAA - Nome&quot; na categoria de folha da unidade. A baixa é feita em Contas a Pagar.
       </p>
-      {estado.erro ? <p className="text-sm text-destructive">{estado.erro}</p> : null}
+      {estado?.erro ? <p className="text-sm text-destructive">{estado?.erro}</p> : null}
     </form>
   );
 }
