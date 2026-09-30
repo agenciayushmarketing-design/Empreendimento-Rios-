@@ -1,6 +1,7 @@
 // Formatacao brasileira. Os valores no banco sao numeric(14,2); o PostgREST entrega como number.
 const moeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-const data = new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo" });
+// Datas sem hora sao formatadas em UTC: o valor ja e o dia civil, sem fuso a aplicar.
+const data = new Intl.DateTimeFormat("pt-BR", { timeZone: "UTC" });
 const mesExtenso = new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" });
 
 export function formatarMoeda(valor: number | string | null | undefined): string {
