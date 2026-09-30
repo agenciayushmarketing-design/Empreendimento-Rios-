@@ -1,41 +1,52 @@
 import { redirect } from "next/navigation";
 
 import { Header } from "@/components/header";
-import { listarUnidadesDoUsuario } from "@/lib/services/unidades";
+import { Nav } from "@/components/nav";
+import { MODULOS } from "@/lib/modulos";
+import { carregarContextoAcesso, pode } from "@/lib/services/acesso";
 import { createClient } from "@/lib/supabase/server";
+import { lerUnidadeAtual } from "@/lib/unidade-atual";
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const supabase = createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
+  const ctx = await carregarContextoAcesso();
 
-  // Defesa: o middleware ja redireciona, mas mantemos a checagem aqui
-  // para que nenhuma rota autenticada carregue sem usuario.
-  if (!user) redirect("/login");
+  // Defesa: o middleware ja redireciona, mas nenhuma rota autenticada carrega sem usuario.
+  if (!ctx) redirect("/login");
 
-  // O trigger handle_new_user() cria o profile no primeiro login; o primeiro usuario vira admin.
-  const { data: perfil } = await supabase
-    .from("profiles")
-    .select("id, full_name, is_active")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!perfil || !perfil.is_active) {
-    await supabase.auth.signOut();
-    redirect("/login?erro=" + encodeURIComponent("Usuario sem perfil ativo. Contate o admin."));
+  if (!ctx.ativo) {
+    // Logado no Auth mas sem profile ativo (o trigger handle_new_user() cria o profile no
+    // primeiro login; is_active=false significa que o admin desativou).
+    await createClient().auth.signOut();
+    redirect("/login?erro=" + encodeURIComponent("Usuário sem perfil ativo. Contate o administrador."));
   }
 
-  const unidades = await listarUnidadesDoUsuario(supabase, user.id);
+  if (ctx.deveTrocarSenha) redirect("/trocar-senha");
+
+  const unidadeAtual = lerUnidadeAtual(ctx.unidades);
+  const itensNav = MODULOS.filter((m) => pode(ctx, m.chave, "view")).map((m) => ({
+    rota: m.rota,
+    rotulo: m.rotulo,
+    icone: m.icone,
+  }));
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header userEmail={user.email ?? ""} unidades={unidades} />
-      <main className="container mx-auto p-6">{children}</main>
+    <div className="flex min-h-screen bg-background">
+      <aside className="w-14 shrink-0 border-r md:w-60">
+        <div className="hidden h-[57px] items-center border-b px-5 text-sm font-semibold tracking-tight md:flex">
+          Empreendimento Rios
+        </div>
+        <Nav itens={itensNav} />
+      </aside>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <Header
+          nome={ctx.nome}
+          email={ctx.email}
+          isAdmin={ctx.isAdmin}
+          unidades={ctx.unidades.map((u) => ({ id: u.id, nome: u.nome, cor: u.cor }))}
+          unidadeAtual={unidadeAtual}
+        />
+        <main className="flex-1 p-4 md:p-6">{children}</main>
+      </div>
     </div>
   );
 }

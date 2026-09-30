@@ -1,32 +1,39 @@
-// Servico de unidades de negocio (tabela business_units do schema herdado do Lovable).
-// Regra de acesso, espelhando a funcao can_access_unit() do banco:
-// admin enxerga todas as unidades; member enxerga apenas as listadas em user_unit_access.
+// Unidades de negocio (tabela business_units). Regra de acesso igual a can_access_unit() do banco:
+// admin enxerga todas; member enxerga apenas as listadas em user_unit_access.
 import type { SupabaseServerClient } from "@/lib/supabase/server";
+import type { Database } from "@/lib/supabase/database.types";
+
+export type TipoUnidade = Database["public"]["Enums"]["business_unit_type"];
 
 export type Unidade = {
   id: string;
   nome: string;
-  tipo: "office" | "events" | "rental" | "loans" | "haras";
+  tipo: TipoUnidade;
   icone: string;
   cor: string;
 };
 
 export async function listarUnidadesDoUsuario(
   supabase: SupabaseServerClient,
-  userId: string
+  userId: string,
+  isAdmin: boolean
 ): Promise<Unidade[]> {
-  const [{ data: units, error }, { data: roles }, { data: access }] = await Promise.all([
-    supabase.from("business_units").select("id, name, type, icon, color").order("name"),
-    supabase.from("user_roles").select("role").eq("user_id", userId),
-    supabase.from("user_unit_access").select("business_unit_id").eq("user_id", userId),
-  ]);
-
+  const { data: units, error } = await supabase
+    .from("business_units")
+    .select("id, name, type, icon, color")
+    .order("name");
   if (error) throw new Error(`Falha ao listar unidades: ${error.message}`);
 
-  const isAdmin = (roles ?? []).some((r) => r.role === "admin");
-  const permitidas = new Set((access ?? []).map((a) => a.business_unit_id));
+  let permitidas: Set<string> | null = null;
+  if (!isAdmin) {
+    const { data: access } = await supabase
+      .from("user_unit_access")
+      .select("business_unit_id")
+      .eq("user_id", userId);
+    permitidas = new Set((access ?? []).map((a) => a.business_unit_id));
+  }
 
   return (units ?? [])
-    .filter((u) => isAdmin || permitidas.has(u.id))
+    .filter((u) => !permitidas || permitidas.has(u.id))
     .map((u) => ({ id: u.id, nome: u.name, tipo: u.type, icone: u.icon, cor: u.color }));
 }
