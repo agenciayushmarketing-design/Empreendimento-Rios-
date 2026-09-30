@@ -36,7 +36,7 @@
 
 1. **Fase 0 – organizar a casa** (este PR): baseline do banco versionado, tipos gerados, Drizzle removido, docs legados arquivados, fluxo por PR.
 2. **Fase 1 – base do app** (PR 2): login/logout, troca de senha obrigatória (`must_change_password`), layout com menu lateral e seletor de unidade persistido em cookie, contexto de acesso (`lib/services/acesso.ts`) espelhando `is_admin()`/`has_permission()`/`can_access_unit()`, uma rota por módulo com guarda de permissão, dashboard com resumo real do mês.
-3. **Fase 2+ – módulos por prioridade:** Movimentações (PR 4: listagem por mês com filtros e totais, criar/editar/excluir, marcar pago/pendente; transferências e ajustes aparecem com selo e não são editados aqui), depois Contas a Pagar/Receber, empréstimos, reservas, contas bancárias, e por último o bloco haras.
+3. **Fase 2+ – módulos por prioridade:** Movimentações (PR 4: listagem por mês com filtros e totais, criar/editar/excluir, marcar pago/pendente; transferências e ajustes aparecem com selo e não são editados aqui), Categorias, Clientes e Contas Bancárias (PR 5), Contas a Pagar e a Receber (PR 6: baixa pelas funções `mark_*_paid` com conta bancária, estorno, recorrência mensal de contas a pagar). Depois: empréstimos, reservas, contratos, funcionários, equipe, e por último o bloco haras.
 4. **Pré go-live:** Supabase de produção, variáveis separadas na Vercel, usuários reais, backup.
 
 ## Roteiro de go-live (cliente começar a usar)

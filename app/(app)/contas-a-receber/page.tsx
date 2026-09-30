@@ -1,7 +1,5 @@
-import { ModuloEmConstrucao } from "@/components/modulo-em-construcao";
-import { exigirPermissao } from "@/lib/services/acesso";
+import { PaginaListaContas, type BuscaContas } from "@/components/contas/pagina-lista";
 
-export default async function Page() {
-  await exigirPermissao("receivables");
-  return <ModuloEmConstrucao modulo="receivables" />;
+export default function Page({ searchParams }: { searchParams: BuscaContas }) {
+  return <PaginaListaContas tipo="receber" searchParams={searchParams} />;
 }
