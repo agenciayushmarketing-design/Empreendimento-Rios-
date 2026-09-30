@@ -1,11 +1,9 @@
 "use client";
 
-// Seletor de unidade do header. Coracao da navegacao: "Todas as Unidades" = consolidado;
-// uma unidade especifica = filtro gerencial em todas as telas abaixo.
-// Sprint 0: estado local apenas (lista as 4 unidades). Sprint 1 vai persistir
-// a selecao (cookie + server action) e propagar o filtro pelo app.
+// Seletor de unidade do header. "Todas as Unidades" = consolidado; uma unidade = filtro
+// gerencial em todas as telas. A escolha vai para um cookie via server action.
+import { useTransition } from "react";
 
-import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -13,22 +11,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { selecionarUnidade } from "@/app/(app)/actions";
 
-export type UnidadeOpcao = { id: string; nome: string };
+export type UnidadeOpcao = { id: string; nome: string; cor: string };
 
-export function UnitSelector({ unidades }: { unidades: UnidadeOpcao[] }) {
-  const [valor, setValor] = useState<string>("todas");
+export function UnitSelector({
+  unidades,
+  valorAtual,
+}: {
+  unidades: UnidadeOpcao[];
+  valorAtual: string;
+}) {
+  const [pendente, startTransition] = useTransition();
 
   return (
-    <Select value={valor} onValueChange={setValor}>
-      <SelectTrigger className="w-[240px]">
+    <Select
+      value={valorAtual}
+      disabled={pendente}
+      onValueChange={(v) => startTransition(() => selecionarUnidade(v))}
+    >
+      <SelectTrigger className="w-[220px]" aria-label="Unidade de negócio">
         <SelectValue placeholder="Selecionar unidade" />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="todas">Todas as Unidades</SelectItem>
         {unidades.map((u) => (
           <SelectItem key={u.id} value={u.id}>
-            {u.nome}
+            <span className="flex items-center gap-2">
+              <span className="inline-block h-2.5 w-2.5 rounded-full" style={{ backgroundColor: u.cor }} />
+              {u.nome}
+            </span>
           </SelectItem>
         ))}
       </SelectContent>

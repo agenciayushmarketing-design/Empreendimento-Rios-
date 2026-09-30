@@ -1,6 +1,6 @@
 # Migração Lovable → Next.js / Supabase / Vercel
 
-**Status em 30/09/2026:** Fase 0 em andamento. O Lovable sai de cena; tudo passa a viver neste repositório.
+**Status em 30/09/2026:** Fase 0 e Fase 1 entregues em PRs (empilhados). O Lovable saiu de cena; tudo vive neste repositório.
 
 ## Decisões fechadas
 
@@ -35,7 +35,7 @@
 ## Fases
 
 1. **Fase 0 – organizar a casa** (este PR): baseline do banco versionado, tipos gerados, Drizzle removido, docs legados arquivados, fluxo por PR.
-2. **Fase 1 – base do app:** login/logout, layout com seletor de unidade, permissões por módulo.
+2. **Fase 1 – base do app** (PR 2): login/logout, troca de senha obrigatória (`must_change_password`), layout com menu lateral e seletor de unidade persistido em cookie, contexto de acesso (`lib/services/acesso.ts`) espelhando `is_admin()`/`has_permission()`/`can_access_unit()`, uma rota por módulo com guarda de permissão, dashboard com resumo real do mês.
 3. **Fase 2+ – módulos por prioridade,** cada um atrás do seu feature flag: financeiro (transações, contas a pagar/receber), empréstimos, reservas, contas bancárias, e por último o bloco haras.
 4. **Pré go-live:** Supabase de produção, variáveis separadas na Vercel, usuários reais, backup.
 
@@ -44,4 +44,6 @@
 - Job `mark-overdue-daily` (03:00) duplicado com `rios_mark_overdue` (06:00) no `rios-homolog`. O baseline já traz só um; falta remover o duplicado no homolog: `select cron.unschedule('mark-overdue-daily');`
 - Advisor de segurança do Supabase: extensão `pg_net` no schema `public` e funções SECURITY DEFINER executáveis por `anon`. O baseline já cria `pg_net` em `extensions`; a revogação de execute para `anon` entra numa migration própria.
 - Buckets `animal-photos`, `avatars`, `client-docs`, `haras-purchase-contracts` e `sale-contracts` têm policies mas não existiam no homolog. O baseline os cria (privados).
-- As variáveis de ambiente na Vercel foram criadas em maio, antes do `rios-homolog` existir, e apontam para outro banco. Precisam ser trocadas para o homolog antes do próximo deploy.
+- As variáveis de ambiente na Vercel foram criadas em maio, antes do `rios-homolog` existir, e apontam para outro banco. Trocar no painel da Vercel (são do tipo *sensitive*, a API não deixa editar por fora): `NEXT_PUBLIC_SUPABASE_URL` e `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` para os valores do homolog; `DATABASE_URL`, `DIRECT_URL` e `SUPABASE_SECRET_KEY` podem ser removidas (não são mais usadas).
+- Nenhum usuário existe no Auth do homolog. Criar o primeiro em Authentication → Users no painel; ele vira admin pelo trigger. Marcar `must_change_password` no profile se a senha for provisória.
+- Módulo **Equipe e Acessos** (`team`) precisa criar usuários, o que exige a chave secreta no servidor (`auth.admin.createUser`). Entra numa fase própria, com `SUPABASE_SECRET_KEY` só na Vercel.
